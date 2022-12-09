@@ -1,8 +1,8 @@
 style: github
-template: changelog.tpl.md
+template: CHANGELOG.tpl.md
 info:
   title: CHANGELOG
-  repository_url: https://github.com/rookie-terraform-modules/terraform-aws-sth
+  repository_url: https://github.com/rookie-terraform-modules/terraform-aws-template
 options:
   commits:
     filters:
