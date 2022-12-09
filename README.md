@@ -36,6 +36,7 @@ No resources.
 
 | Name | Description | Type | Required |
 |------|-------------|------|:--------:|
+| <a name="input_name_prefix"></a> [name\_prefix](#input\_name\_prefix) | Prefix to apply to all resources | `string` | yes |
 | <a name="input_tags"></a> [tags](#input\_tags) | Tags to apply to all resources | `map(string)` | no |
 
 ## Outputs
