@@ -1,0 +1,78 @@
+name: terraform
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  pre-commit-checks:
+    name: Pre-commit checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Terraform min/max versions
+        id: minMax
+        uses: clowdhaus/terraform-min-max@v1.0.4
+      - name: Pre-commit Terraform ${{ steps.minMax.outputs.maxVersion }}
+        uses: clowdhaus/terraform-composite-actions/pre-commit@v1.4.1
+        with:
+          terraform-version: ${{ steps.minMax.outputs.maxVersion }}
+          terraform-docs-version: v0.16.0
+
+  validate:
+    runs-on: ubuntu-latest
+    container: hashicorp/terraform
+    strategy:
+      matrix:
+        dir:
+          - "examples/test"
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Terraform Init
+        run: terraform init -upgrade
+        working-directory: ${{ matrix.dir }}
+      - name: Terraform Validate
+        run: terraform validate
+        working-directory: ${{ matrix.dir }}
+
+  mock-plan:
+    runs-on: ubuntu-latest
+    container: hashicorp/terraform
+    strategy:
+      matrix:
+        dir:
+          - "examples/test"
+    services:
+      localstack:
+        image: localstack/localstack
+        env:
+          SERVICES: apigateway,cloudformation,cloudwatch,dynamodb,es,firehose,iam,kinesis,lambda,route53,redshift,s3,secretsmanager,ses,sns,sqs,ssm,stepfunctions,sts
+        ports:
+          - 4566:4566
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Terraform Init
+        run: terraform init -upgrade
+        working-directory: ${{ matrix.dir }}
+      - name: Terraform Plan (Mock)
+        run: terraform plan
+        working-directory: ${{ matrix.dir }}
+
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+
+      - name: Render terraform docs and push changes back to PR
+        uses: terraform-docs/gh-actions@main
+        with:
+          working-dir: .
+          output-file: README.md
+          output-method: inject
+          git-push: "true"

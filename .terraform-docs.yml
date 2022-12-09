@@ -1,0 +1,17 @@
+formatter: "markdown table"
+
+sections:
+  show:
+    - requirements
+    - providers
+    - inputs
+    - outputs
+    - resources
+
+sort:
+  enabled: true
+  by: required
+
+settings:
+  default: false
+  lockfile: false
